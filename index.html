@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Screen Random Images from Pixabay</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        #image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Responsive grid */
+            gap: 10px;
+            padding: 10px;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+        img {
+            width: 100%; /* Ensure images fill their grid cells */
+            height: 100%; /* Cover the height of the grid cell */
+            object-fit: cover; /* Cover the grid cell without distortion */
+            border-radius: 8px;
+        }
+        #control-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="control-panel">
+        <input type="text" id="keyword" placeholder="Enter keyword" value="nature" />
+        <button onclick="fetchImages()">Fetch Images</button>
+    </div>
+    <div id="image-container"></div>
+
+    <script>
+        const apiKey = '44471162-5a3a1a06c34e34eed452257bd'; // Your Pixabay API key
+
+        function fetchImages() {
+            const keyword = document.getElementById('keyword').value.trim();
+            if (!keyword) {
+                alert('Please enter a keyword.');
+                return;
+            }
+
+            const apiUrl = `https://pixabay.com/api/?key=${apiKey}&q=${encodeURIComponent(keyword)}&image_type=photo&per_page=20`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.hits.length > 0) {
+                        // Clear previous images
+                        document.getElementById('image-container').innerHTML = '';
+
+                        // Display new images
+                        data.hits.forEach(hit => {
+                            const imageElement = document.createElement('img');
+                            imageElement.src = hit.largeImageURL;
+                            imageElement.alt = 'Random Image';
+                            document.getElementById('image-container').appendChild(imageElement);
+                        });
+                    } else {
+                        document.getElementById('image-container').innerHTML = '<p>No images found. Please try again.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching images:', error);
+                    document.getElementById('image-container').innerHTML = '<p>Error fetching images. Please try again later.</p>';
+                });
+        }
+    </script>
+</body>
+</html>
